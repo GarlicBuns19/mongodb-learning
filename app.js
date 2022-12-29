@@ -89,6 +89,68 @@ app.post("/books", (req, res) => {
     });
 });
 
+// Deleting in db
+app.delete("/books/:id", (req, res) => {
+  if(ObjectId.isValid(req.params.id)){
+    col.deleteOne({_id : ObjectId(req.params.id)})
+    .then((result) => {
+      if(result.deletedCount == 1){
+        res.json({
+          status: 200,
+          result : result
+        })
+      }else if(result.deletedCount == 0){
+        res.json({
+          status : 400,
+          err: "Cannot find id in db",
+          msg : err.message
+        })
+      }
+    }).catch((err) => {
+      res.json({
+        status : 400,
+        err: "Cannot find id in db",
+        msg : err.message
+      })
+    })
+  }else{
+    res.json({
+      status : 400,
+      msg : "Not valid id in db"
+    })
+  }
+});
+
+// Updating a book
+app.put('/books/:id',(req,res) => {
+  let updates = req.body
+
+  if (ObjectId.isValid(req.params.id)) {
+    col
+      .updateOne({ _id: ObjectId(req.params.id) },{$set : updates})
+      .then((doc) => {
+        if (doc) {
+          res.status(200).json({
+            status: 200,
+            results: doc,
+          });
+        }
+      })
+      .catch((err) => {
+        res.json({
+          status: 400,
+          err: "This book not in store",
+          msg: err.message,
+        });
+      });
+  } else {
+    res.json({
+      status: 400,
+      msg: "Not valid id",
+    });
+  }
+})
+
 app.listen(3000, () => {
   console.log("app listening on port http://localhost:3000");
 });
