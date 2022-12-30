@@ -10,11 +10,20 @@ let col = db.collection("books");
 // routes
 // All books
 app.get("/books", (req, res) => {
+  
+  // current page
+  //req.query.p is for ?p=0 after /books
+  const page = req.query.p || 0;
+  const booksPerPage = 3; 
+
+  // store the books
   let books = [];
 
   col
     .find() // fetches a cursor object // methods are toArray which puts all docs into an array // forEach processes 1 doc at a time
     .sort({ author: 1 })
+    .skip(page * booksPerPage) // skip these books and show the next
+    .limit(booksPerPage) // Limit how much books is on screen
     .forEach((book) => books.push(book))
     .then(() => {
       if (books.length > 0) {
